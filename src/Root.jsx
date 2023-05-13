@@ -13,50 +13,53 @@ import VideoBackground from "./components/VideoBackground";
 
 const Root = (props) => {
   const [user, setuser] = useState({});
-  useEffect(() => {
+  
+  useEffect(() => { 
+    console.log("useEffect")
+  
     const handleGoogleApiLoad = () => {
       google.accounts.id.initialize({
         client_id:
           "646245005567-1a33npebn0q9i0sbdnanqqotpr216gjc.apps.googleusercontent.com",
         callback: handleCallbackResponse,
       });
-
       google.accounts.id.renderButton(document.getElementById("signInDiv"), {
         theme: "outline",
         size: "large",
       });
     };
-
     const script = document.createElement('script');
     script.src = 'https://accounts.google.com/gsi/client';
     script.async = true;
     script.defer = true;
     script.onload = handleGoogleApiLoad;
     document.body.appendChild(script);
-
     return () => {
       document.body.removeChild(script);
     };
   }, []);
+  
 
   const handleCallbackResponse = async (response) => {
+    console.log("response", response);
     const UserObject = jwtDecode(response.credential);
+    console.log("UserObject", UserObject);
     localStorage.setItem("user", JSON.stringify(UserObject));
-    localStorage.setItem("signedIn", true);
-    setTimeout(
-      (params) => {
+        setTimeout(
+      () => {
         setuser(UserObject);
       },
       [1000]
     );
   };
+  
 
   const [mode, setmyMode] = useState(
     localStorage.getItem("currentMode") === null
       ? "dark"
       : localStorage.getItem("currentMode") === "light"
-      ? "light"
-      : "dark"
+        ? "light"
+        : "dark"
   );
 
   const theme = useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
@@ -67,7 +70,7 @@ const Root = (props) => {
       {Object.keys(JSON.parse(localStorage.getItem("user"))).length === 0 && (
         <VideoBackground>
           <div id="signInDiv">
-            <h1>Sign in with Google</h1>
+          
           </div>
         </VideoBackground>
       )}
