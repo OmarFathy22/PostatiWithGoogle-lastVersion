@@ -12,11 +12,11 @@ import { useNavigate } from "react-router-dom";
 import VideoBackground from "./components/VideoBackground";
 
 const Root = (props) => {
-  const [user, setuser] = useState({});
+  const [user, setuser] = useState(
+    JSON.parse(localStorage.getItem("user")) || {}
+  );
   
-  useEffect(() => { 
-    console.log("useEffect")
-  
+  useEffect(() => {   
     const handleGoogleApiLoad = () => {
       google.accounts.id.initialize({
         client_id:
@@ -67,14 +67,14 @@ const Root = (props) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      {Object.keys(JSON.parse(localStorage.getItem("user"))).length === 0 && (
+      {Object.keys(user).length === 0 && (
         <VideoBackground>
           <div id="signInDiv">
           
           </div>
         </VideoBackground>
       )}
-      {Object.keys(JSON.parse(localStorage.getItem("user"))).length !== 0 && (
+      {Object.keys(user).length !== 0 && (
         <Box>
           {/* <Appbar
           showList={showList}
