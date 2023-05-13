@@ -15,8 +15,8 @@ const Root = (props) => {
   const [user, setuser] = useState(
     JSON.parse(localStorage.getItem("user")) || {}
   );
-  
-  useEffect(() => {   
+
+  useEffect(() => {
     const handleGoogleApiLoad = () => {
       google.accounts.id.initialize({
         client_id:
@@ -28,8 +28,8 @@ const Root = (props) => {
         size: "large",
       });
     };
-    const script = document.createElement('script');
-    script.src = 'https://accounts.google.com/gsi/client';
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
     script.async = true;
     script.defer = true;
     script.onload = handleGoogleApiLoad;
@@ -38,28 +38,21 @@ const Root = (props) => {
       document.body.removeChild(script);
     };
   }, []);
-  
 
   const handleCallbackResponse = async (response) => {
     console.log("response", response);
     const UserObject = jwtDecode(response.credential);
     console.log("UserObject", UserObject);
     localStorage.setItem("user", JSON.stringify(UserObject));
-        setTimeout(
-      () => {
-        setuser(UserObject);
-      },
-      [1000]
-    );
+    setuser(UserObject);
   };
-  
 
   const [mode, setmyMode] = useState(
     localStorage.getItem("currentMode") === null
       ? "dark"
       : localStorage.getItem("currentMode") === "light"
-        ? "light"
-        : "dark"
+      ? "light"
+      : "dark"
   );
 
   const theme = useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
@@ -69,9 +62,7 @@ const Root = (props) => {
       <CssBaseline />
       {Object.keys(user).length === 0 && (
         <VideoBackground>
-          <div id="signInDiv">
-          
-          </div>
+          <div id="signInDiv"></div>
         </VideoBackground>
       )}
       {Object.keys(user).length !== 0 && (
