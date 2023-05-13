@@ -1,10 +1,13 @@
+/* eslint-disable no-unused-vars */
 import { Box } from "@mui/material";
 import { createTheme } from "@mui/material/styles";
 import { useMemo, useState } from "react";
 import getDesignTokens from "../styles/MyTheme";
 import MainContent from "../components/MainContent";
+import { useParams } from "react-router";
 function Profile() {
-  console.log("Profile Page")
+  const {uId} = useParams();
+  console.log(uId)
   const [showList, setshowList] = useState("none");
   const [mode, setmyMode] = useState(
     localStorage.getItem("currentMode") === null
@@ -32,7 +35,7 @@ function Profile() {
         <h1 style={{textAlign:"center" , paddingTop:"90px" ,  backgroundColor:
           theme.palette.mode === "light" ? " rgb(248, 248, 248)" : null}}>{JSON.parse(localStorage.getItem("user")).name}</h1>
         
-          <MainContent theme={theme} showList={showList} uid={JSON.parse(localStorage.getItem("user")).sub} />
+          <MainContent theme={theme} showList={showList} uid={uId} />
 
     </div>
 

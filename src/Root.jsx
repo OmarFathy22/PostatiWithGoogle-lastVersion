@@ -40,9 +40,7 @@ const Root = (props) => {
   }, []);
 
   const handleCallbackResponse = async (response) => {
-    console.log("response", response);
     const UserObject = jwtDecode(response.credential);
-    console.log("UserObject", UserObject);
     localStorage.setItem("user", JSON.stringify(UserObject));
     setuser(UserObject);
   };

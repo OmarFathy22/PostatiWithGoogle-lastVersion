@@ -39,9 +39,11 @@ export default function TransitionsModal({ theme, ID , FEELING , setFEELING }) {
       setMedia(null);
       setUPLOAD(null);
       setPostText("");
+      setMediaName("");
+      setFEELING("");
     }, 500);
   };
-
+  const [MediaName, setMediaName] = useState("");
   const [PostText, setPostText] = useState("");
   const [PostLOADING, setPostLOADING] = useState(false);
   const [Postsuccess, setPostsuccess] = useState(true);
@@ -68,6 +70,7 @@ export default function TransitionsModal({ theme, ID , FEELING , setFEELING }) {
     await setDoc(doc(db,UID,id ), {
       feeling: FEELING,
       id: ID,
+      uId: JSON.parse(localStorage.getItem("user")).sub,
       picture: JSON.parse(localStorage.getItem("user")).picture,
       name: JSON.parse(localStorage.getItem("user")).name ,
       color: "#30E3DF",
@@ -229,7 +232,7 @@ export default function TransitionsModal({ theme, ID , FEELING , setFEELING }) {
               sx={{
                 width: "100%",
                 mt: "2px",
-                mb: "20px",
+                mb: "5px",
                 justifyContent: "space-between",
                 alignItems: "center",
               }}
@@ -250,12 +253,15 @@ export default function TransitionsModal({ theme, ID , FEELING , setFEELING }) {
                     setLOADING(false);
                     setUPLOADMEDIA(false);
                     setSuccess(true);
+                    setMediaName(e.target.files[0].name);
                   }}
                   type="file"
                   accept="image/*"
+                  // name="filename"
                   style={{ display: "none" }}
                   id="contained-image-file"
                 />
+
                 <input
                   onChange={(e) => {
                     setVideo(e.target.files[0]);
@@ -264,6 +270,7 @@ export default function TransitionsModal({ theme, ID , FEELING , setFEELING }) {
                     setLOADING(false);
                     setUPLOADMEDIA(false);
                     setSuccess(true);
+                    setMediaName(e.target.files[0].name);
                   }}
                   type="file"
                   accept="video/*"
@@ -301,21 +308,21 @@ export default function TransitionsModal({ theme, ID , FEELING , setFEELING }) {
               </Stack>
               <Box>
                 {UPLOAD && (
-                  <PostButton
-                    image={image}
-                    imagesUrl={imagesUrl}
-                    PostText={PostText}
-                    setImage={setImage}
-                    Media={Media}
-                    videoUrl={videoUrl}
-                    func={imageUploading}
-                    LOADING={LOADING}
-                    success={success}
-                    setLOADING={setLOADING}
-                    setSuccess={setSuccess}
-                  >
-                    upload {UPLOAD}
-                  </PostButton>
+                    <PostButton
+                      image={image}
+                      imagesUrl={imagesUrl}
+                      PostText={PostText}
+                      setImage={setImage}
+                      Media={Media}
+                      videoUrl={videoUrl}
+                      func={imageUploading}
+                      LOADING={LOADING}
+                      success={success}
+                      setLOADING={setLOADING}
+                      setSuccess={setSuccess}
+                    >
+                      upload {UPLOAD}
+                    </PostButton>
                 )}
                 {!UPLOAD && (
                   <Button
@@ -326,9 +333,13 @@ export default function TransitionsModal({ theme, ID , FEELING , setFEELING }) {
                     UPLOAD
                   </Button>
                 )}
+                
               </Box>
-            </Stack>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
+            </Stack>                   
+               <p style={{textAlign:"right" , fontSize:"14px" , paddingRight:"15px"}}>{MediaName}</p>
+
+            
+            {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DemoContainer
                 components={[
                   "DateTimePicker",
@@ -341,7 +352,7 @@ export default function TransitionsModal({ theme, ID , FEELING , setFEELING }) {
                   <DateTimePicker defaultValue={dayjs("2022-04-17T15:30")} />
                 </DemoItem>
               </DemoContainer>
-            </LocalizationProvider>
+            </LocalizationProvider> */}
             {!UPLOADMEDIA && (
               <PostButton
                 image={image}

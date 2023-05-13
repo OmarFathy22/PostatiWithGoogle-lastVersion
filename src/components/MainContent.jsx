@@ -18,8 +18,6 @@ import AddPostModal from "./postModal/AddPostModal";
 import Post from "./Post";
 import SekeletonCard from "./SekeletonCard";
 const MainContent = ({ theme, showList , uid }) => {
-  console.log(uid)
-  console.log(typeof(uid))
   const [FEELING, setFEELING] = useState(null);
   const [value, loading] = useCollection(
     query(collection(db, uid), orderBy("id", "desc"))

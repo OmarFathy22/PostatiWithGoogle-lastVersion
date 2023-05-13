@@ -13,7 +13,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
-import AccountCircle from "@mui/icons-material/AccountCircle";
+import LogoutIcon from "@mui/icons-material/Logout";
 import MailIcon from "@mui/icons-material/Mail";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
@@ -72,7 +72,7 @@ export default function PrimarySearchAppBar({
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
   const handleProfileMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
+    setAnchorEl(event);
   };
 
   const handleMobileMenuClose = () => {
@@ -84,7 +84,8 @@ export default function PrimarySearchAppBar({
   };
 
   const menuId = "primary-search-account-menu";
-
+  const {picture} = JSON.parse(localStorage.getItem("user"));
+  const {sub} = JSON.parse(localStorage.getItem("user"));
   const mobileMenuId = "primary-search-account-menu-mobile";
   const renderMobileMenu = (
     <Menu
@@ -122,15 +123,19 @@ export default function PrimarySearchAppBar({
         </IconButton>
         <p>Notifications</p>
       </MenuItem>
-      <MenuItem onClick={handleProfileMenuOpen}>
+      <MenuItem onClick={() => {
+        navigate(`/profile/${sub}`);
+        handleProfileMenuOpen();
+      }}>
         <IconButton
+         
           size="large"
           aria-label="account of current user"
           aria-controls="primary-search-account-menu"
           aria-haspopup="true"
           color="inherit"
         >
-          <AccountCircle />
+          <Avatar src={picture} alt={picture} sx={{ width: 32, height: 32 }}>picture</Avatar>
         </IconButton>
         <p>Profile</p>
       </MenuItem>
@@ -164,17 +169,16 @@ export default function PrimarySearchAppBar({
           >
             POSTATI
           </Typography>
-          <Button
+          <IconButton
             onClick={() => {
               localStorage.setItem("user", JSON.stringify({}));
               window.location.reload();
             }}
             variant="contained"
-            color="primary"
             sx={{ margin: "10px" }}
           >
-            SignOut
-          </Button>
+            <LogoutIcon/>
+          </IconButton>
 
           <Search>
             <SearchIconWrapper>
@@ -216,7 +220,7 @@ export default function PrimarySearchAppBar({
                 <NotificationsIcon />
               </Badge>
             </IconButton>
-        <Link to={"profile"}>
+        <Link to={`profile/${JSON.parse(localStorage.getItem("user")).sub}`}>
               <IconButton
                 sx={{ width: "60px", height: "60px" }}
                 size="large"
@@ -230,8 +234,7 @@ export default function PrimarySearchAppBar({
                 {/* <AccountCircle /> */}
                 <Avatar
                   alt={
-                    JSON.parse(localStorage.getItem("user")).name.toString() ||
-                    "N"
+                    JSON.parse(localStorage.getItem("user")).name
                   }
                   src={JSON.parse(localStorage.getItem("user"))?.picture}
                 >

@@ -12,12 +12,12 @@ import {
   Route,
   RouterProvider,
 } from "react-router-dom";
-
 const router = createBrowserRouter(
   createRoutesFromElements(
       <Route path="/" element={<Root />}>
         <Route path="/" element={<Home />} />
-        <Route path="profile" element={<Profile />} />
+        <Route path="profile/:uId" element={<Profile />} />
+      
          {/* <Route path="/create" element={<Create />} /> */}
          {/* <Route path="setting" element={<Setting />} /> */}
          {/* <Route path="logout" element={<Logout />} /> */}
@@ -30,5 +30,6 @@ function App() {
       <RouterProvider router={router} />
   );
 }
+
 
 export default App;
