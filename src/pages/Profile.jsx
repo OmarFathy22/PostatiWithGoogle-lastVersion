@@ -22,7 +22,7 @@ function Profile() {
   return (
     <div>
         <div style={{height:"100px" ,backgroundImage: "linear-gradient(to right, #434343 0%, black 100%)",position:"relative"}}>
-           <img src={JSON.parse(localStorage.getItem("user")).picture} alt="Profile Image"
+           <img src={JSON.parse(localStorage.getItem("CurrUser")).picture} alt="Profile Image"
             style={{width:"150px",height:"150px",borderRadius:"50%"
           
           ,position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-15%)",
@@ -33,7 +33,7 @@ function Profile() {
            />
         </div>
         <h1 style={{textAlign:"center" , paddingTop:"90px" ,  backgroundColor:
-          theme.palette.mode === "light" ? " rgb(248, 248, 248)" : null}}>{JSON.parse(localStorage.getItem("user")).name}</h1>
+          theme.palette.mode === "light" ? " rgb(248, 248, 248)" : null}}>{JSON.parse(localStorage.getItem("CurrUser")).name}</h1>
         
           <MainContent theme={theme} showList={showList} uid={uId} />
 

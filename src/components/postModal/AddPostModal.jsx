@@ -28,8 +28,7 @@ import SNACKBAR from "./Snackbar";
 import FeelingMENU from "./feelingMENU";
 import MentionMENU from "./mentionMENU";
 
-
-export default function TransitionsModal({ theme, ID , FEELING , setFEELING }) {
+export default function TransitionsModal({ theme, ID, FEELING, setFEELING }) {
   const [OPEN, setOPEN] = React.useState(false);
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
@@ -66,13 +65,13 @@ export default function TransitionsModal({ theme, ID , FEELING , setFEELING }) {
     setLOADING(true);
     setUPLOADMEDIA(true);
   };
-  const SetData = async (UID , id) => {
-    await setDoc(doc(db,UID,id ), {
+  const SetData = async (UID, id) => {
+    await setDoc(doc(db, UID, id), {
       feeling: FEELING,
       id: ID,
       uId: JSON.parse(localStorage.getItem("user")).sub,
       picture: JSON.parse(localStorage.getItem("user")).picture,
-      name: JSON.parse(localStorage.getItem("user")).name ,
+      name: JSON.parse(localStorage.getItem("user")).name,
       color: "#30E3DF",
       date: moment().format("LLL"),
       mediaType: Media,
@@ -84,6 +83,8 @@ export default function TransitionsModal({ theme, ID , FEELING , setFEELING }) {
           : null,
       body: PostText,
       liked: false,
+      likes: 0,
+      clickedlike: false,
       bookmarked: false,
     });
     setopenPostsnackbar(true);
@@ -154,11 +155,16 @@ export default function TransitionsModal({ theme, ID , FEELING , setFEELING }) {
   };
 
   return (
-    <Box sx={{boxShadow: "none"}}>
+    <Box sx={{ boxShadow: "none" }}>
       <Tooltip title="Add Post" placement="left">
         <Fab
           onClick={handleOpen}
-          sx={{ position: "fixed", bottom: "30px", left: "30px", zIndex: 3000 }}
+          sx={{
+            position: "fixed",
+            bottom: "30px",
+            left: { xs: "30px" },
+            zIndex: 3000,
+          }}
           color="primary"
           aria-label="add"
         >
@@ -166,7 +172,7 @@ export default function TransitionsModal({ theme, ID , FEELING , setFEELING }) {
         </Fab>
       </Tooltip>
       <Modal
-        sx={{boxShadow: "none"}}
+        sx={{ boxShadow: "none" }}
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
         open={open}
@@ -188,10 +194,16 @@ export default function TransitionsModal({ theme, ID , FEELING , setFEELING }) {
             >
               Create Post
             </Typography>
-            <Typography component="div" sx={{ mt: 2 } }>
+            <Typography component="div" sx={{ mt: 2 }}>
               <Stack direction="row" sx={{ alignItems: "center" }}>
-                <Avatar alt={JSON.parse(localStorage.getItem("user")).name.toString() || 'N'} src={JSON.parse(localStorage.getItem("user")).picture} >
-                {JSON.parse(localStorage.getItem("user")).picture}
+                <Avatar
+                  alt={
+                    JSON.parse(localStorage.getItem("user")).name.toString() ||
+                    "N"
+                  }
+                  src={JSON.parse(localStorage.getItem("user")).picture}
+                >
+                  {JSON.parse(localStorage.getItem("user")).picture}
                 </Avatar>
                 <Typography
                   sx={{ ml: "20px", fontWeight: "100" }}
@@ -200,17 +212,33 @@ export default function TransitionsModal({ theme, ID , FEELING , setFEELING }) {
                 >
                   {" "}
                   {JSON.parse(localStorage.getItem("user")).name}
-                  
                 </Typography>
-               {FEELING &&   <Stack direction="row">
-               <Typography
-                sx={{ ml: "5px" ,color:theme.palette.primary.main ,   fontWeight: "500"}}
-                variant="body1" color="inherit">feels </Typography>
-                <Typography
-                sx={{ ml: "5px"  ,textTransform:"capitalize",  fontWeight: "500"}}
-                variant="body1" color="inherit">{FEELING} </Typography>
-               </Stack>
-                }
+                {FEELING && (
+                  <Stack direction="row">
+                    <Typography
+                      sx={{
+                        ml: "5px",
+                        color: theme.palette.primary.main,
+                        fontWeight: "500",
+                      }}
+                      variant="body1"
+                      color="inherit"
+                    >
+                      feels{" "}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        ml: "5px",
+                        textTransform: "capitalize",
+                        fontWeight: "500",
+                      }}
+                      variant="body1"
+                      color="inherit"
+                    >
+                      {FEELING}{" "}
+                    </Typography>
+                  </Stack>
+                )}
               </Stack>
             </Typography>
             <TextField
@@ -224,7 +252,6 @@ export default function TransitionsModal({ theme, ID , FEELING , setFEELING }) {
               rows={3}
               placeholder="What's on your mind..."
               variant="standard"
-              
             />
 
             <Stack
@@ -277,8 +304,12 @@ export default function TransitionsModal({ theme, ID , FEELING , setFEELING }) {
                   style={{ display: "none" }}
                   id="contained-video-file"
                 />
-              
-                  <FeelingMENU theme={theme} EmoJiIcon={EmojiEmotionsIcon} setFEELING={setFEELING}/>
+
+                <FeelingMENU
+                  theme={theme}
+                  EmoJiIcon={EmojiEmotionsIcon}
+                  setFEELING={setFEELING}
+                />
                 {/* </Tooltip> */}
                 <Tooltip title="Add Photo" placement="bottom">
                   <label htmlFor="contained-image-file">
@@ -286,8 +317,7 @@ export default function TransitionsModal({ theme, ID , FEELING , setFEELING }) {
                       sx={{
                         color: theme.palette.secondary.main,
                         cursor: "pointer",
-                      mr: "10px",
-
+                        mr: "10px",
                       }}
                     />
                   </label>
@@ -298,31 +328,35 @@ export default function TransitionsModal({ theme, ID , FEELING , setFEELING }) {
                       sx={{
                         color: theme.palette.success.main,
                         cursor: "pointer",
-                      mr: "10px",
-
+                        mr: "10px",
                       }}
                     />
                   </label>
                 </Tooltip>
-                <MentionMENU theme={theme} EmoJiIcon={PersonAddIcon} PostText={PostText} setPostText={setPostText} />
+                <MentionMENU
+                  theme={theme}
+                  EmoJiIcon={PersonAddIcon}
+                  PostText={PostText}
+                  setPostText={setPostText}
+                />
               </Stack>
               <Box>
                 {UPLOAD && (
-                    <PostButton
-                      image={image}
-                      imagesUrl={imagesUrl}
-                      PostText={PostText}
-                      setImage={setImage}
-                      Media={Media}
-                      videoUrl={videoUrl}
-                      func={imageUploading}
-                      LOADING={LOADING}
-                      success={success}
-                      setLOADING={setLOADING}
-                      setSuccess={setSuccess}
-                    >
-                      upload {UPLOAD}
-                    </PostButton>
+                  <PostButton
+                    image={image}
+                    imagesUrl={imagesUrl}
+                    PostText={PostText}
+                    setImage={setImage}
+                    Media={Media}
+                    videoUrl={videoUrl}
+                    func={imageUploading}
+                    LOADING={LOADING}
+                    success={success}
+                    setLOADING={setLOADING}
+                    setSuccess={setSuccess}
+                  >
+                    upload {UPLOAD}
+                  </PostButton>
                 )}
                 {!UPLOAD && (
                   <Button
@@ -333,12 +367,18 @@ export default function TransitionsModal({ theme, ID , FEELING , setFEELING }) {
                     UPLOAD
                   </Button>
                 )}
-                
               </Box>
-            </Stack>                   
-               <p style={{textAlign:"right" , fontSize:"14px" , paddingRight:"15px"}}>{MediaName}</p>
+            </Stack>
+            <p
+              style={{
+                textAlign: "right",
+                fontSize: "14px",
+                paddingRight: "15px",
+              }}
+            >
+              {MediaName}
+            </p>
 
-            
             {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DemoContainer
                 components={[
@@ -367,7 +407,6 @@ export default function TransitionsModal({ theme, ID , FEELING , setFEELING }) {
                 setLOADING={setPostLOADING}
                 setSuccess={setPostsuccess}
                 ID={ID}
-              
               >
                 Post
               </PostButton>
@@ -375,7 +414,13 @@ export default function TransitionsModal({ theme, ID , FEELING , setFEELING }) {
             {UPLOADMEDIA && (
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 <Box sx={{ width: "100%", mt: 1.5, position: "relative" }}>
-                  <Button sx={{ width: "100%" }} variant="contained" disabled={true}>POST</Button>
+                  <Button
+                    sx={{ width: "100%" }}
+                    variant="contained"
+                    disabled={true}
+                  >
+                    POST
+                  </Button>
                 </Box>
               </Box>
             )}

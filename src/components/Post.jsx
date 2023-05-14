@@ -23,7 +23,7 @@ import Favorite from "@mui/icons-material/Favorite";
 import BookmarkBorderOutlinedIcon from "@mui/icons-material/BookmarkBorderOutlined";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import ShareIcon from "@mui/icons-material/Share";
-import { useNavigate , useLocation } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 function Post({
   theme,
   showList,
@@ -34,6 +34,7 @@ function Post({
   loading,
   post,
   uid,
+  updateLikes,
 }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -47,33 +48,39 @@ function Post({
   };
   const navigate = useNavigate();
   const location = useLocation();
-
+  const { sub } = JSON.parse(localStorage.getItem("user"));
   return (
     <Card
       key={post.date}
-      sx={{ maxWidth: 450, mr: "auto", ml: "auto", mb: "40px" }}
+      sx={{ maxWidth: 450, mr: "auto", ml: "auto", mb: "90px" }}
     >
       <CardHeader
         avatar={
-            <Avatar
-              onClick={() => {
-                if(location.pathname === "/"){ 
-                  navigate(`/profile/${post.data().uId}`)
-                }
-              }}
-
-              sx={{
-                color: theme.palette.getContrastText(post.data().color),
-                bgcolor: post.data().color,
-                cursor: "pointer",
-              }}
-              aria-label="recipe"
-              alt={post.data().picture}
-              src={post.data().picture}
-            >
-              {/* {post.data().name} */}
-              {post.data().picture}
-            </Avatar>
+          <Avatar
+            onClick={() => {
+              if (location.pathname === "/") {
+                localStorage.setItem(
+                  "CurrUser",
+                  JSON.stringify({
+                    name: post.data().name,
+                    picture: post.data().picture,
+                  })
+                );
+                navigate(`/profile/${post.data().uId}`);
+              }
+            }}
+            sx={{
+              color: theme.palette.getContrastText(post.data().color),
+              bgcolor: post.data().color,
+              cursor: "pointer",
+            }}
+            aria-label="recipe"
+            alt={post.data().picture}
+            src={post.data().picture}
+          >
+            {/* {post.data().name} */}
+            {post.data().picture}
+          </Avatar>
         }
         action={
           <Box component="article">
@@ -92,33 +99,46 @@ function Post({
         }
         title={
           !post.data().feeling ? (
+            <Typography
+            onClick={() => {
+              if (location.pathname === "/") {
+                localStorage.setItem(
+                  "CurrUser",
+                  JSON.stringify({
+                    name: post.data().name,
+                    picture: post.data().picture,
+                  })
+                );
+                navigate(`/profile/${post.data().uId}`);
+              }
+            }}
+              sx={{ fontWeight: "300", cursor: "pointer" }}
+              variant="body1"
+              color="inherit"
+            >
+              {post.data().name}{" "}
+            </Typography>
+          ) : (
+            <Stack direction="row">
               <Typography
-              onClick={() => {
-                if(location.pathname === "/"){ 
-                  navigate(`/profile/${post.data().uId}`)
-                }
-              }}
-                sx={{ fontWeight: "300" , cursor:"pointer" }}
+                onClick={() => {
+                  if (location.pathname === "/") {
+                    localStorage.setItem(
+                      "CurrUser",
+                      JSON.stringify({
+                        name: post.data().name,
+                        picture: post.data().picture,
+                      })
+                    );
+                    navigate(`/profile/${post.data().uId}`);
+                  }
+                }}
+                sx={{ fontWeight: "300", cursor: "pointer" }}
                 variant="body1"
                 color="inherit"
               >
-                {post.data().name}{" "}
+                {post.data().name}
               </Typography>
-          ) : (
-            <Stack direction="row">
-              
-                <Typography
-                  onClick={() => {
-                    if(location.pathname === "/"){ 
-                      navigate(`/profile/${post.data().uId}`)
-                    }
-                  }}
-                  sx={{ fontWeight: "300" , cursor: "pointer" }}
-                  variant="body1"
-                  color="inherit"
-                >
-                  {post.data().name}{" "}
-                </Typography>
               <Typography
                 sx={{
                   ml: "5px",
@@ -194,6 +214,7 @@ function Post({
       )}
 
       <CardActions disableSpacing>
+        {<span>{post.data().likes}</span>}
         <Checkbox
           // hover
           sx={{
@@ -204,9 +225,33 @@ function Post({
               },
             },
           }}
-          checked={post.data().liked}
+          checked={post.data().liked && post.data().uId === JSON.parse(localStorage.getItem("user")).sub}
           onChange={(e) => {
-            updatePost(post.id, e.target.checked, post.data().bookmarked);
+            // updatePost(post.id, e.target.checked, post.data().bookmarked , post.data().clickedlike ,post.data().uId );
+            updatePost(
+              post.id,
+              e.target.checked,
+              post.data().bookmarked,
+              post.data().clickedlike,
+              "AllPosts"
+            );
+            updateLikes(
+              post.id,
+              "AllPosts",
+              post.data().likes + (post.data().clickedlike === true ? -1 : 1)
+            );
+            updatePost(
+              post.id,
+              e.target.checked,
+              post.data().bookmarked,
+              post.data().clickedlike,
+              post.data().uId
+            );
+            updateLikes(
+              post.id,
+              post.data().uId,
+              post.data().likes + (post.data().clickedlike === true ? -1 : 1)
+            );
           }}
           icon={<FavoriteBorder />}
           checkedIcon={<Favorite sx={{ color: "red" }} />}

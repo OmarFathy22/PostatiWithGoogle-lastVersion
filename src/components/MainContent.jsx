@@ -30,15 +30,17 @@ const MainContent = ({ theme, showList , uid }) => {
     await deleteDoc(doc(db, "AllPosts" , id));
   };
 
-  const updatePost = async (id, checked, checked2) => {
-    await updateDoc(doc(db,JSON.parse(localStorage.getItem("user")).sub, id), {
+  const updatePost = async (id, checked, checked2 , clickedlike , uId ) => {
+    await updateDoc(doc(db,uId, id), {
       liked: checked,
       bookmarked: checked2,
-    });
-    await updateDoc(doc(db,"AllPosts", id), {
-      liked: checked,
-      bookmarked: checked2,
-    });
+      clickedlike : !clickedlike
+     });
+  };
+  const updateLikes = async (id , uId , likes ) => {
+    await updateDoc(doc(db,uId, id), {
+      likes:likes
+     });
   };
 
   if (loading) {
@@ -74,7 +76,9 @@ const MainContent = ({ theme, showList , uid }) => {
       >
         {value?.docs?.map((post , index) => {
         return(
-          <Post key={index} theme={theme} showList={showList} ID={ID} deletePost={deletePost} updatePost={updatePost} value={value} loading={loading} post={post} uid = {uid}/>
+          <Post
+          updateLikes ={updateLikes}
+          key={index} theme={theme} showList={showList} ID={ID} deletePost={deletePost} updatePost={updatePost} value={value} loading={loading} post={post} uid = {uid}/>
         )
       })}
         <AddPostModal theme={theme} ID={ID} FEELING={FEELING} setFEELING={setFEELING} />

@@ -20,6 +20,7 @@ import MoreIcon from "@mui/icons-material/MoreVert";
 import { Avatar, Button } from "@mui/material";
 import { useNavigate } from "react-router";
 import { Link } from "react-router-dom";
+import { updateCurrentUser } from "firebase/auth";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -82,11 +83,20 @@ export default function PrimarySearchAppBar({
   const handleMobileMenuOpen = (event) => {
     setMobileMoreAnchorEl(event.currentTarget);
   };
-
   const menuId = "primary-search-account-menu";
   const {picture} = JSON.parse(localStorage.getItem("user"));
+  const {name} = JSON.parse(localStorage.getItem("user"));
   const {sub} = JSON.parse(localStorage.getItem("user"));
   const mobileMenuId = "primary-search-account-menu-mobile";
+  const UpdateCurrUser = () => {
+    localStorage.setItem(
+      "CurrUser",
+      JSON.stringify({
+        name: name,
+        picture: picture,
+      })
+    );
+  }
   const renderMobileMenu = (
     <Menu
       anchorEl={mobileMoreAnchorEl}
@@ -124,7 +134,10 @@ export default function PrimarySearchAppBar({
         <p>Notifications</p>
       </MenuItem>
       <MenuItem onClick={() => {
-        navigate(`/profile/${sub}`);
+         console.log("ues")
+        
+          navigate(`/profile/${sub}`);
+        
         handleProfileMenuOpen();
       }}>
         <IconButton
@@ -220,7 +233,7 @@ export default function PrimarySearchAppBar({
                 <NotificationsIcon />
               </Badge>
             </IconButton>
-        <Link to={`profile/${JSON.parse(localStorage.getItem("user")).sub}`}>
+        
               <IconButton
                 sx={{ width: "60px", height: "60px" }}
                 size="large"
@@ -228,7 +241,17 @@ export default function PrimarySearchAppBar({
                 aria-label="account of current user"
                 aria-controls={menuId}
                 aria-haspopup="true"
-                onClick={handleProfileMenuOpen}
+                onClick={() => {
+                    localStorage.setItem(
+                      "CurrUser",
+                      JSON.stringify({
+                        name: name,
+                        picture: picture,
+                      })
+                    );
+                    navigate(`/profile/${sub}`)
+                  handleProfileMenuOpen()
+                }}
                 color="inherit"
               >
                 {/* <AccountCircle /> */}
@@ -241,7 +264,6 @@ export default function PrimarySearchAppBar({
                   {JSON.parse(localStorage.getItem("user")).picture}
                 </Avatar>
               </IconButton>
-        </Link>
           </Box>
           <Box sx={{ display: { xs: "flex", md: "none" } }}>
             <IconButton
