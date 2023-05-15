@@ -42,6 +42,11 @@ const MainContent = ({ theme, showList , uid }) => {
       likes:likes
      });
   };
+  const updatecounter = async (id , uId , ListOfLikes ) => {
+    await updateDoc(doc(db,uId, id), {
+      ListOfLikes: ListOfLikes
+     });
+  };
 
   if (loading) {
     return (
@@ -77,7 +82,7 @@ const MainContent = ({ theme, showList , uid }) => {
         {value?.docs?.map((post , index) => {
         return(
           <Post
-          updateLikes ={updateLikes}
+          updateLikes ={updateLikes}  updatecounter = {updatecounter} LikesList = {post.data().ListOfLikes}
           key={index} theme={theme} showList={showList} ID={ID} deletePost={deletePost} updatePost={updatePost} value={value} loading={loading} post={post} uid = {uid}/>
         )
       })}

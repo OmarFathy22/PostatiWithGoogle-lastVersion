@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Avatar,
   Box,
@@ -35,6 +35,8 @@ function Post({
   post,
   uid,
   updateLikes,
+  updatecounter,
+  LikesList
 }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -42,13 +44,27 @@ function Post({
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
-
   const handleClose = () => {
     setAnchorEl(null);
   };
+  useEffect(() => {
+    const Users = post.data().ListOfLikes;
+    if (post.data().uId !== sub && Users.includes(sub) === false) {
+        Users.push(sub);
+      updatecounter(post.id , "AllPosts" , Users );
+      updatePost(
+        post.id,
+        false,
+        post.data().bookmarked,
+        true,
+        "AllPosts"
+      );
+    }
+  },[])
   const navigate = useNavigate();
   const location = useLocation();
   const { sub } = JSON.parse(localStorage.getItem("user"));
+  console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
   return (
     <Card
       key={post.date}
@@ -100,18 +116,18 @@ function Post({
         title={
           !post.data().feeling ? (
             <Typography
-            onClick={() => {
-              if (location.pathname === "/") {
-                localStorage.setItem(
-                  "CurrUser",
-                  JSON.stringify({
-                    name: post.data().name,
-                    picture: post.data().picture,
-                  })
-                );
-                navigate(`/profile/${post.data().uId}`);
-              }
-            }}
+              onClick={() => {
+                if (location.pathname === "/") {
+                  localStorage.setItem(
+                    "CurrUser",
+                    JSON.stringify({
+                      name: post.data().name,
+                      picture: post.data().picture,
+                    })
+                  );
+                  navigate(`/profile/${post.data().uId}`);
+                }
+              }}
               sx={{ fontWeight: "300", cursor: "pointer" }}
               variant="body1"
               color="inherit"
@@ -225,9 +241,8 @@ function Post({
               },
             },
           }}
-          checked={post.data().liked && post.data().uId === JSON.parse(localStorage.getItem("user")).sub}
+          checked={post.data().liked}
           onChange={(e) => {
-            // updatePost(post.id, e.target.checked, post.data().bookmarked , post.data().clickedlike ,post.data().uId );
             updatePost(
               post.id,
               e.target.checked,

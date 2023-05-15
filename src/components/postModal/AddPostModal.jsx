@@ -85,6 +85,8 @@ export default function TransitionsModal({ theme, ID, FEELING, setFEELING }) {
       liked: false,
       likes: 0,
       clickedlike: false,
+      ListOfLikes: [],
+      counter: 0,
       bookmarked: false,
     });
     setopenPostsnackbar(true);
