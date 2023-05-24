@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Avatar,
   Box,
@@ -17,122 +17,218 @@ import {
   Typography,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
 import Favorite from "@mui/icons-material/Favorite";
 import BookmarkBorderOutlinedIcon from "@mui/icons-material/BookmarkBorderOutlined";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import ShareIcon from "@mui/icons-material/Share";
 import { useNavigate, useLocation } from "react-router";
-function Post({
-  theme,
-  showList,
-  ID,
-  deletePost,
-  updatePost,
-  value,
-  loading,
-  post,
-  uid,
-  updateLikes,
-  updatecounter,
-  LikesList
-}) {
+import { doc } from "firebase/firestore";
+import { db } from "../../firebase/config";
+import { updateDoc } from "firebase/firestore";
+import ReplyIcon from "@mui/icons-material/Reply";
+import { getDoc, setDoc } from "firebase/firestore";
+import YouSure from './YouSure'
+import YouSureDelete from './YouSure'
+
+
+function Post({ theme, deletePost, post, uid, ID }) {
   const [anchorEl, setAnchorEl] = useState(null);
+  const [OpenShareModal, setOpenShareModal] = useState(false);
+  const [OpenDeleteModal, setOpenDeleteModal] = useState(false);
   const open = Boolean(anchorEl);
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
   const handleClose = () => {
     setAnchorEl(null);
   };
-  useEffect(() => {
-    const Users = post.data().ListOfLikes;
-    if (post.data().uId !== sub && Users.includes(sub) === false) {
-        Users.push(sub);
-      updatecounter(post.id , "AllPosts" , Users );
-      updatePost(
-        post.id,
-        false,
-        post.data().bookmarked,
-        true,
-        "AllPosts"
-      );
+  const { sub } = JSON.parse(localStorage.getItem("user"));
+  const { name } = JSON.parse(localStorage.getItem("user"));
+  const { picture } = JSON.parse(localStorage.getItem("user"));
+  const newData = {
+    uId: sub,
+    id: ID,
+    color: "#30E3DF",
+    liked: false,
+    likes: 0,
+    clickedlike: false,
+    ListOfLikes: [],
+    ListOfBookmarks: [],
+    counter: 0,
+    bookmarked: false,
+    shared: true,
+  };
+  const DeleteListOfLikes = async (id, uId, ListOfLikes) => {
+    let Data = [];
+    Data = ListOfLikes;
+    Data?.splice(Data.indexOf(sub), 1);
+    await updateDoc(doc(db, uId, id), {
+      ListOfLikes: ListOfLikes.length ? Data : [],
+    });
+  };
+  const AddListOfLikes = async (id, uId, ListOfLikes) => {
+    let Data = [];
+    Data = ListOfLikes;
+    Data?.push(sub);
+    await updateDoc(doc(db, uId, id), {
+      ListOfLikes: Data,
+    });
+  };
+  const DeleteListOfBookmarks = async (id, uId, ListOfBookmarks) => {
+    let Data = [];
+    Data = ListOfBookmarks;
+    Data.splice(Data.indexOf(sub), 1);
+    await updateDoc(doc(db, uId, id), {
+      ListOfBookmarks: ListOfBookmarks.length ? Data : [],
+    });
+  };
+  const AddListOfBookmarks = async (id, uId, ListOfBookmarks) => {
+    let Data = [];
+    Data = ListOfBookmarks;
+    Data?.push(sub);
+    await updateDoc(doc(db, uId, id), {
+      ListOfBookmarks: Data,
+    });
+  };
+  const updateNotification = async (id, uId, text , type) => {
+    const docRef = doc(db, "AllUsers", id);
+    const docSnap = await getDoc(docRef);
+    let Data = [];
+    Data = docSnap?.data()?.notification;
+    if(id !== sub)
+    {
+      Data?.push({ name: name, uid: sub, picture: picture, id:post.data().id , text:text , type: type });
     }
-  },[])
+    let Length = 0;
+    if(id !== sub) {
+      Length = Data?.Length
+    }
+    if (docSnap.exists()) {
+      await updateDoc(doc(db, "AllUsers", id), {
+        notification: Data,
+        Length : Length,
+      });
+    }
+  };
   const navigate = useNavigate();
   const location = useLocation();
-  const { sub } = JSON.parse(localStorage.getItem("user"));
-  console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+  
+
+  async function shareDocument(
+    sourceCollection,
+    sourceDocId,
+    targetCollection,
+    targetDocId,
+    newData
+  ) {
+    try {
+      // Get reference to the source document
+      const sourceDocRef = doc(db, sourceCollection, sourceDocId);
+
+      // Get data from the source document
+      const sourceDocSnapshot = await getDoc(sourceDocRef);
+
+      if (!sourceDocSnapshot.exists()) {
+        return;
+      }
+
+      const sourceDocData = sourceDocSnapshot.data();
+
+      // Update the data of the copied document with the new data
+      const updatedDocData = { ...sourceDocData, ...newData };
+
+      // Create a new document in the target collection with the updated data
+      const targetDocRef = doc(db, targetCollection, targetDocId);
+      await setDoc(targetDocRef, updatedDocData);
+    } catch (error) {
+      console.log(error);
+    }
+  }
   return (
     <Card
       key={post.date}
-      sx={{ maxWidth: 450, mr: "auto", ml: "auto", mb: "90px" }}
+      sx={{
+        maxWidth: 850,
+        mr: "auto",
+        ml: "auto",
+        mb: "90px",
+        position: "relative",
+      }}
     >
+      {post.data().shared && (
+        <Box
+          style={{
+            position: "absolute",
+            top: "20px",
+            right: "20px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: "10px",
+          }}
+        >
+          <ReplyIcon /> Reposted
+        </Box>
+      )}
       <CardHeader
         avatar={
           <Avatar
             onClick={() => {
-              if (location.pathname === "/") {
-                localStorage.setItem(
-                  "CurrUser",
-                  JSON.stringify({
-                    name: post.data().name,
-                    picture: post.data().picture,
-                  })
-                );
-                navigate(`/profile/${post.data().uId}`);
-              }
+              localStorage.setItem(
+                "CurrUser",
+                JSON.stringify({
+                  name: post.data().name,
+                  picture: post?.data()?.picture,
+                })
+              );
+              navigate(`/profile/${post?.data()?.uId}`);
             }}
             sx={{
-              color: theme.palette.getContrastText(post.data().color),
-              bgcolor: post.data().color,
+              color: theme.palette.getContrastText(post?.data()?.color),
+              bgcolor: post?.data()?.color,
               cursor: "pointer",
             }}
             aria-label="recipe"
-            alt={post.data().picture}
-            src={post.data().picture}
+            alt={post?.data()?.picture}
+            src={post?.data()?.picture}
           >
-            {/* {post.data().name} */}
-            {post.data().picture}
+            {post?.data()?.name.charAt()}
           </Avatar>
         }
-        action={
-          <Box component="article">
-            <IconButton
-              aria-controls={open ? "fade-menu" : undefined}
-              aria-haspopup="true"
-              aria-expanded={open ? "true" : undefined}
-              onClick={(e) => {
-                handleClick(e);
-              }}
-              aria-label="settings"
-            >
-              <MoreVertIcon />
-            </IconButton>
-          </Box>
-        }
+        // action={
+        //   <Box component="article">
+        //     <IconButton
+        //       aria-controls={open ? "fade-menu" : undefined}
+        //       aria-haspopup="true"
+        //       aria-expanded={open ? "true" : undefined}
+        //       onClick={(e) => {
+        //         handleClick(e);
+        //       }}
+        //       aria-label="settings"
+        //     >
+        //       <MoreVertIcon />
+        //     </IconButton>
+        //   </Box>
+        // }
         title={
-          !post.data().feeling ? (
+          !post?.data()?.feeling ? (
             <Typography
               onClick={() => {
                 if (location.pathname === "/") {
                   localStorage.setItem(
                     "CurrUser",
                     JSON.stringify({
-                      name: post.data().name,
-                      picture: post.data().picture,
+                      name: post?.data()?.name,
+                      picture: post?.data()?.picture,
                     })
                   );
-                  navigate(`/profile/${post.data().uId}`);
+                  navigate(`/profile/${post?.data()?.uId}`);
                 }
               }}
               sx={{ fontWeight: "300", cursor: "pointer" }}
               variant="body1"
               color="inherit"
             >
-              {post.data().name}{" "}
+              {post?.data()?.name}{" "}
             </Typography>
           ) : (
             <Stack direction="row">
@@ -142,18 +238,18 @@ function Post({
                     localStorage.setItem(
                       "CurrUser",
                       JSON.stringify({
-                        name: post.data().name,
-                        picture: post.data().picture,
+                        name: post?.data()?.name,
+                        picture: post?.data()?.picture,
                       })
                     );
-                    navigate(`/profile/${post.data().uId}`);
+                    navigate(`/profile/${post?.data()?.uId}`);
                   }
                 }}
                 sx={{ fontWeight: "300", cursor: "pointer" }}
                 variant="body1"
                 color="inherit"
               >
-                {post.data().name}
+                {post?.data()?.name}
               </Typography>
               <Typography
                 sx={{
@@ -175,12 +271,12 @@ function Post({
                 variant="body1"
                 color="inherit"
               >
-                {post.data().feeling}{" "}
+                {post?.data()?.feeling}{" "}
               </Typography>
             </Stack>
           )
         }
-        subheader={post.data().date}
+        subheader={post?.data()?.date}
       />
       <Menu
         id="fade-menu"
@@ -212,25 +308,27 @@ function Post({
           variant="body2"
           color="text.secondary"
         >
-          {post.data().body}
+          {post?.data()?.body}
         </Typography>
       </CardContent>
-      {post.data().mediaType === "image" && (
+      {post?.data()?.mediaType === "image" && (
         <CardMedia
           component="img"
-          height="300"
-          image={post.data().media}
+          max-height="300"
+          image={post?.data()?.media}
           alt="Paella dish"
+          style={{maxHeight:"400px"}}
+          
         />
       )}
-      {post.data().mediaType === "video" && (
-        <video src={post.data().media} width="100%" height="300" controls>
+      {post?.data()?.mediaType === "video" && (
+        <video src={post?.data()?.media} width="100%" height="300" controls>
           Your browser does not support HTML video.
         </video>
       )}
 
       <CardActions disableSpacing>
-        {<span>{post.data().likes}</span>}
+        <span>{post?.data()?.ListOfLikes.length}</span>
         <Checkbox
           // hover
           sx={{
@@ -241,37 +339,50 @@ function Post({
               },
             },
           }}
-          checked={post.data().liked}
-          onChange={(e) => {
-            updatePost(
-              post.id,
-              e.target.checked,
-              post.data().bookmarked,
-              post.data().clickedlike,
-              "AllPosts"
-            );
-            updateLikes(
-              post.id,
-              "AllPosts",
-              post.data().likes + (post.data().clickedlike === true ? -1 : 1)
-            );
-            updatePost(
-              post.id,
-              e.target.checked,
-              post.data().bookmarked,
-              post.data().clickedlike,
-              post.data().uId
-            );
-            updateLikes(
-              post.id,
-              post.data().uId,
-              post.data().likes + (post.data().clickedlike === true ? -1 : 1)
-            );
+          checked={post?.data()?.ListOfLikes.includes(sub)}
+          onChange={() => {
+            if (post?.data()?.ListOfLikes.includes(sub)) {
+              DeleteListOfLikes(
+                post?.data()?.id,
+                post?.data()?.uId,
+                post?.data()?.ListOfLikes
+              );
+
+              if (!post?.data()?.shared) {
+                DeleteListOfLikes(
+                  post.data().id,
+                  "AllPosts",
+                  post.data().ListOfLikes
+                );
+              }
+            } else {
+              AddListOfLikes(
+                post?.data()?.id,
+                post?.data()?.uId,
+                post?.data()?.ListOfLikes
+              );
+              updateNotification(
+                post?.data()?.uId,
+                "AllUsers",
+                "loves your post",
+                "love"
+              );
+              if (!post?.data()?.shared) {
+                AddListOfLikes(
+                  post?.data()?.id,
+                  "AllPosts",
+                  post?.data()?.ListOfLikes
+                );
+              }
+            }
           }}
           icon={<FavoriteBorder />}
           checkedIcon={<Favorite sx={{ color: "red" }} />}
         />
         <IconButton
+          onClick={() => {
+            setOpenShareModal(true)
+          }}
           sx={{
             "&:hover": {
               backgroundColor: {
@@ -284,6 +395,16 @@ function Post({
         >
           <ShareIcon />
         </IconButton>
+      
+        <YouSure dofunction={() => {
+          updateNotification(
+            post?.data()?.uId,
+            "AllUsers",
+            "shared your post",
+            "share"
+          );
+          shareDocument(post?.data()?.uId, post?.data()?.id, sub, ID, newData);
+        }} open ={OpenShareModal} setOpen={setOpenShareModal} text={"Are You sure you want to share this Post?"}/>
         <Box sx={{ flexGrow: "1" }} />
         {uid === JSON.parse(localStorage.getItem("user")).sub && (
           <IconButton
@@ -296,28 +417,60 @@ function Post({
               },
             }}
             onClick={() => {
-              deletePost(post.id);
+              setOpenDeleteModal(true)
             }}
           >
             <DeleteIcon />
           </IconButton>
+          
         )}
-        <Checkbox
-          sx={{
-            "&:hover": {
-              backgroundColor: {
-                xs: "transparent",
-                md: "rgba(255, 255, 255, 0.08)",
+        <YouSureDelete dofunction={() => {
+          deletePost(post?.id)
+        }} open={OpenDeleteModal} setOpen={setOpenDeleteModal} text={"Are you sure you want to delete this Post?"}/>
+        {location.pathname === "/" && (
+          <Checkbox
+            sx={{
+              "&:hover": {
+                backgroundColor: {
+                  xs: "transparent",
+                  md: "rgba(255, 255, 255, 0.08)",
+                },
               },
-            },
-          }}
-          onChange={(e) => {
-            updatePost(post.id, post.data().liked, e.target.checked);
-          }}
-          checked={post.data().bookmarked}
-          icon={<BookmarkBorderOutlinedIcon />}
-          checkedIcon={<BookmarkIcon />}
-        />
+            }}
+            onChange={() => {
+              if (post.data().ListOfBookmarks.includes(sub)) {
+                DeleteListOfBookmarks(
+                  post?.data()?.id,
+                  post?.data()?.uId,
+                  post?.data()?.ListOfBookmarks
+                );
+                if (!post?.data()?.shared) {
+                  DeleteListOfBookmarks(
+                    post?.data()?.id,
+                    "AllPosts",
+                    post?.data()?.ListOfBookmarks
+                  );
+                }
+              } else {
+                AddListOfBookmarks(
+                  post?.data()?.id,
+                  post?.data()?.uId,
+                  post?.data()?.ListOfBookmarks
+                );
+                if (!post?.data()?.shared) {
+                  AddListOfBookmarks(
+                    post?.data()?.id,
+                    "AllPosts",
+                    post?.data()?.ListOfBookmarks
+                  );
+                }
+              }
+            }}
+            checked={post?.data()?.ListOfBookmarks.includes(sub)}
+            icon={<BookmarkBorderOutlinedIcon />}
+            checkedIcon={<BookmarkIcon />}
+          />
+        )}
       </CardActions>
     </Card>
   );

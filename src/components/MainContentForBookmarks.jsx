@@ -16,13 +16,16 @@ import {
 import AddPostModal from "./postModal/AddPostModal";
 import Post from "./Post";
 import SekeletonCard from "./SekeletonCard";
-
 const MainContent = ({ theme, uid }) => {
   const [FEELING, setFEELING] = useState(null);
   const [value, loading] = useCollection(
-    query(collection(db, uid), orderBy("id", "desc"))
+    query(collection(db, 'AllPosts'), orderBy("id", "desc"))
   );
-  
+   const UID = JSON.parse(localStorage.getItem("user")).sub
+  const filtered = value?.docs?.filter((item) => {
+    return item.data().ListOfBookmarks.includes(UID);
+  })
+  filtered?.reverse();
   const ID = new Date().getTime().toString();
   const n = 8;
   const deletePost = async (id) => {
@@ -50,10 +53,10 @@ const MainContent = ({ theme, uid }) => {
   }
 
   if (value) {
+    console.log(filtered)
     return (
       <Box
       sx={{
-        position:"relative",
         flexGrow: "1",
         pt: "100px",
         pl: { xs: "12px" },
@@ -63,10 +66,10 @@ const MainContent = ({ theme, uid }) => {
           theme.palette.mode === "light" ? " rgb(248, 248, 248)" : null,
       }}
       >
-        {value?.docs?.map((post , index) => {
+        {filtered?.map((post , index) => {
         return(
           <Post
-          key={index} theme={theme}  deletePost={deletePost} post={post} uid = {uid} ID = {ID}/>
+          key={index} theme={theme}  deletePost={deletePost} post={post} uid = {uid}/>
         )
       })}
         <AddPostModal theme={theme} ID={ID} FEELING={FEELING} setFEELING={setFEELING} />

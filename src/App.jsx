@@ -2,6 +2,7 @@
 import Root from "./Root";
 import Profile from "./pages/Profile";
 import Home from './pages/Home'
+import Bookmarks from './pages/Bookmarks'
 
 // import Home from "./pages/Home";
 // import Create from "./pages/Create";
@@ -14,14 +15,10 @@ import {
 } from "react-router-dom";
 const router = createBrowserRouter(
   createRoutesFromElements(
-      <Route path="/" element={<Root />}>
-        <Route path="/" element={<Home />} />
-        <Route path="profile/:uId" element={<Profile />} />
-      
-         {/* <Route path="/create" element={<Create />} /> */}
-         {/* <Route path="setting" element={<Setting />} /> */}
-         {/* <Route path="logout" element={<Logout />} /> */}
-        {/* ... etc. */}
+      <Route exact path="/" element={<Root />}>
+        <Route  path="/" element={<Home />} />
+        <Route  path="profile/:uId" element={<Profile />} />
+        <Route  path="bookmarks" element={<Bookmarks />} />
       </Route>
   )
 );

@@ -7,15 +7,14 @@ import {
   ThemeProvider,
 } from "@mui/material";
 import Appbar from "../components/Appbar";
-import React, { useMemo, useState , useEffect } from "react";
+import React, { useMemo, useState } from "react";
+import { Outlet } from "react-router";
 import getDesignTokens from "../styles/MyTheme";
-import MainContent from "../components/MainContent";
+import MainContent from "../components/MainContentForBookmarks";
 import DRAWER from "../components/DRAWER";
-// import RightDrawer from "../components/RightDrawer";
 const Root = (props) => {
-  useEffect(() => {
-  
-  }, []);
+  const { sub } = JSON.parse(localStorage.getItem("CurrUser"))
+  const uId = sub;
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -29,15 +28,16 @@ const Root = (props) => {
       : "dark"
   );
   const theme = useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box sx={{
+      <Box
+        sx={{
           backgroundColor:
             theme.palette.mode === "light" ? " rgb(248, 248, 248)" : null,
           minHeight: "100vh !important",
-        }}>
+        }}
+      >
         {/* Appbar is landing here */}
         <Appbar
           showList={showList}
@@ -53,13 +53,16 @@ const Root = (props) => {
             mode={mode}
             setmyMode={setmyMode}
           />
-          <MainContent theme={theme}  uid={"AllPosts"} />
-          {/* <RightSection theme={theme} /> */}
-          {/* <RightDrawer theme={theme} /> */}
-        </Stack>
-        {/* <Outlet /> */}
-      </Box>
+          <MainContent
+            theme={theme}
+            uid={uId}
+          />
 
+        </Stack>
+        {/* Main content is landing here */}
+
+        <Outlet />
+      </Box>
     </ThemeProvider>
   );
 };

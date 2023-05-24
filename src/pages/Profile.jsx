@@ -1,13 +1,29 @@
-/* eslint-disable no-unused-vars */
-import { Box } from "@mui/material";
-import { createTheme } from "@mui/material/styles";
-import { useMemo, useState } from "react";
+
+import {
+  Box,
+  createTheme,
+  CssBaseline,
+  Stack,
+  ThemeProvider,
+} from "@mui/material";
+import Appbar from "../components/Appbar";
+import React, { useMemo, useState } from "react";
+import { Outlet } from "react-router";
 import getDesignTokens from "../styles/MyTheme";
 import MainContent from "../components/MainContent";
+import DRAWER from "../components/DRAWER";
 import { useParams } from "react-router";
-function Profile() {
-  const {uId} = useParams();
-  console.log(uId)
+import { db } from "../../firebase/config";
+import { useDocument } from "react-firebase-hooks/firestore";
+ import { doc } from "firebase/firestore";
+ import ProfileLoading from '../components/loadingProfile'
+const Root = (props) => {
+  const { uId } = useParams();
+  const [value, loading] = useDocument(doc(db, "AllUsers", uId));
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
   const [showList, setshowList] = useState("none");
   const [mode, setmyMode] = useState(
     localStorage.getItem("currentMode") === null
@@ -17,29 +33,81 @@ function Profile() {
       : "dark"
   );
   const theme = useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
-
-
+  
   return (
-    <div>
-        <div style={{height:"100px" ,backgroundImage: "linear-gradient(to right, #434343 0%, black 100%)",position:"relative"}}>
-           <img src={JSON.parse(localStorage.getItem("CurrUser")).picture} alt="Profile Image"
-            style={{width:"150px",height:"150px",borderRadius:"50%"
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Box
+        sx={{
+          backgroundColor:
+            theme.palette.mode === "light" ? " rgb(248, 248, 248)" : null,
+          minHeight: "100vh !important",
+        }}
+      >
+        {/* Appbar is landing here */}
+        <Appbar
+          showList={showList}
+          setshowList={setshowList}
+          handleDrawerToggle={handleDrawerToggle}
+        />
+      <Box
+          className = "Post"
+            style={{
+              paddingTop: "100px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              flexDirection: "column",
+              width:"100%",
+              border:{sm:"10px solid red !important"}
+            }}
+          >
+            {loading ? <ProfileLoading theme = {theme}/> : (
+              <div style={{  display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              flexDirection: "column"}}>
+                <img
+              src={value?.data()?.picture}
+              alt="Image"
+              // className="ShadowForProfile"
+              style={{ width: "150px", height: "150px", borderRadius: "50%" }}
+            />
+            <h1
+              style={{
+                textAlign: "center",
+                backgroundColor:
+                  theme.palette.mode === "light" ? " rgb(248, 248, 248)" : null,
+              }}
+            >
+              {value?.data()?.name}
+            </h1>
+              </div>
+            )}
+          </Box>
+      
+        <Stack direction="row">
+          <DRAWER
+            mobileOpen={mobileOpen}
+            handleDrawerToggle={handleDrawerToggle}
+            props={props}
+            theme={theme}
+            mode={mode}
+            setmyMode={setmyMode}
+          />
+          <MainContent
+            theme={theme}
+            uid={uId}
           
-          ,position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-15%)",
-          borderRight: "4px solid cyan",
-          borderLeft: "4px solid cyan",
-          borderBottom: "4px solid cyan",
-          borderTop: "4px solid cyan"}}
-           />
-        </div>
-        <h1 style={{textAlign:"center" , paddingTop:"90px" ,  backgroundColor:
-          theme.palette.mode === "light" ? " rgb(248, 248, 248)" : null}}>{JSON.parse(localStorage.getItem("CurrUser")).name}</h1>
-        
-          <MainContent theme={theme} showList={showList} uid={uId} />
+          />
 
-    </div>
+        </Stack>
+        {/* Main content is landing here */}
 
-  )
-}
+        <Outlet />
+      </Box>
+    </ThemeProvider>
+  );
+};
 
-export default Profile;
+export default Root;
